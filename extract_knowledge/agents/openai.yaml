@@ -1,0 +1,4 @@
+interface:
+  display_name: "Extract Knowledge"
+  short_description: "从内容中提取知识点，识别概念、定义、公式、例题、定理。"
+  default_prompt: "从以下内容中提取知识点..."

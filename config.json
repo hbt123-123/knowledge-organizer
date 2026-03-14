@@ -1,0 +1,15 @@
+{
+  "api": {
+    "base_url": "https://coding.dashscope.aliyuncs.com/v1",
+    "api_key": "",
+    "model": "qwen3.5-plus",
+    "vision_model": "qwen3.5-plus",
+    "embedding_model": "",
+    "enable_embedding": false
+  },
+  "workflow": {
+    "max_retries": 3,
+    "retry_delay": 1.0,
+    "timeout": 120
+  }
+}

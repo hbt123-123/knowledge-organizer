@@ -1,0 +1,66 @@
+[project]
+name = "knowledge-organizer"
+version = "1.0.0"
+description = "学科知识增量积累多Skill系统"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Knowledge Organizer Team"}
+]
+keywords = ["knowledge-management", "education", "llm", "multimodal"]
+
+dependencies = [
+    "openai>=1.0.0",
+    "httpx>=0.25.0",
+    "Pillow>=10.0.0",
+]
+
+[project.optional-dependencies]
+pdf = [
+    "pymupdf>=1.23.0",
+]
+ppt = [
+    "python-pptx>=0.6.21",
+]
+export = [
+    "reportlab>=4.0.0",
+]
+all = [
+    "pymupdf>=1.23.0",
+    "python-pptx>=0.6.21",
+    "reportlab>=4.0.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+knowledge-scan = "scan_directory.scripts.scan:main"
+knowledge-parse = "parse_multimodal.scripts.parse:main"
+knowledge-extract = "extract_knowledge.scripts.extract:main"
+knowledge-merge = "merge_knowledge.scripts.merge:main"
+knowledge-export = "export_formats.scripts.export:main"
+knowledge-index = "build_index.scripts.index:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["common*", "scan_directory*", "parse_multimodal*", "extract_knowledge*", "merge_knowledge*", "export_formats*", "build_index*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39"]
