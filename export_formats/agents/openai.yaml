@@ -1,4 +1,0 @@
-interface:
-  display_name: "Export Formats"
-  short_description: "将知识库导出为 PDF、Markdown、思维导图、HTML 等多种格式。"
-  default_prompt: "将这个知识库导出为 PDF 格式。"

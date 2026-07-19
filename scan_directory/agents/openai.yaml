@@ -1,4 +1,0 @@
-interface:
-  display_name: "Scan Directory"
-  short_description: "扫描学科目录，识别章节子目录和教学材料文件。"
-  default_prompt: "扫描这个学科目录，找出所有教学材料。"

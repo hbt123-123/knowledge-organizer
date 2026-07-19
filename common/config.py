@@ -16,12 +16,13 @@ DEFAULT_CONFIG = {
         "api_key": "",
         "model": "qwen3.5-plus",
         "vision_model": "qwen3.5-plus",
-        "embedding_model": "text-embedding-v3"
+        "embedding_model": "text-embedding-v3",
+        "enable_embedding": False
     },
     "workflow": {
         "max_retries": 3,
         "retry_delay": 1.0,
-        "timeout": 60
+        "timeout": 120
     }
 }
 

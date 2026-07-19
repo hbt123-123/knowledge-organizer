@@ -22,7 +22,7 @@ from typing import Dict, Optional, Any, List
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 try:
-    import pdfplumber
+    import fitz  # pymupdf
     PDF_AVAILABLE = True
 except ImportError:
     PDF_AVAILABLE = False
@@ -51,32 +51,42 @@ from common import analyze_image, get_api_config
 def parse_pdf(file_path: str) -> Dict:
     """解析 PDF 文件"""
     if not PDF_AVAILABLE:
-        return {"status": "error", "error": "pdfplumber not installed. Run: pip install pdfplumber"}
+        return {"status": "error", "error": "pymupdf not installed. Run: pip install pymupdf"}
 
     try:
         text_content = []
         tables = []
         images = []
-        
-        with pdfplumber.open(file_path) as pdf:
-            page_count = len(pdf.pages)
-            
-            for page_num, page in enumerate(pdf.pages, 1):
-                text = page.extract_text()
-                if text and text.strip():
-                    text_content.append(f"[Page {page_num}]\n{text}")
-                
-                page_tables = page.extract_tables()
-                for table in page_tables:
-                    if table:
-                        tables.append({"page": page_num, "data": table})
-                
-                for img in page.images:
-                    images.append({
-                        "page": page_num,
-                        "width": img.get("width"),
-                        "height": img.get("height")
-                    })
+
+        doc = fitz.open(file_path)
+        page_count = doc.page_count
+
+        for page_num, page in enumerate(doc, 1):
+            text = page.get_text()
+            if text and text.strip():
+                text_content.append(f"[Page {page_num}]\n{text}")
+
+            # 表格提取（pymupdf >= 1.23.0 支持 find_tables）
+            try:
+                tables_found = page.find_tables()
+                for table in tables_found:
+                    extracted = table.extract()
+                    if extracted:
+                        tables.append({"page": page_num, "data": extracted})
+            except Exception:
+                pass
+
+            # 图片提取：get_images(full=True) 返回元组 (xref, smask, width, height, ...)
+            for img_info in page.get_images(full=True):
+                width = img_info[2] or 0
+                height = img_info[3] or 0
+                images.append({
+                    "page": page_num,
+                    "width": float(width),
+                    "height": float(height),
+                })
+
+        doc.close()
 
         return {
             "status": "success",

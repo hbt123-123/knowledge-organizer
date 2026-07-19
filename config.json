@@ -4,7 +4,7 @@
     "api_key": "",
     "model": "qwen3.5-plus",
     "vision_model": "qwen3.5-plus",
-    "embedding_model": "",
+    "embedding_model": "text-embedding-v3",
     "enable_embedding": false
   },
   "workflow": {
