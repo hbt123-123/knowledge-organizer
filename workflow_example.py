@@ -58,14 +58,17 @@ class StepResult:
 
 class WorkflowState:
     """工作流状态管理"""
-    
-    def __init__(self, state_file: str = "./workflow_state.json"):
+
+    def __init__(self, state_file: str = "./workflow_state.json", persist: bool = False):
         self.state_file = state_file
+        self.persist = persist
         self.steps: Dict[str, StepResult] = {}
         self.load()
-    
+
     def load(self):
-        """加载状态"""
+        """加载状态（仅当启用持久化时）"""
+        if not self.persist:
+            return
         if os.path.exists(self.state_file):
             try:
                 with open(self.state_file, "r", encoding="utf-8") as f:
@@ -74,9 +77,11 @@ class WorkflowState:
                         self.steps[name] = StepResult(**step_data)
             except Exception:
                 pass
-    
+
     def save(self):
-        """保存状态"""
+        """保存状态（仅当启用持久化时）"""
+        if not self.persist:
+            return
         data = {
             "last_updated": datetime.now().isoformat(),
             "steps": {name: asdict(step) for name, step in self.steps.items()}
@@ -146,17 +151,21 @@ class KnowledgeWorkflow:
         knowledge_base_path: Optional[str] = None,
         output_dir: Optional[str] = None,
         index_dir: Optional[str] = None,
-        resume: bool = True
+        resume: bool = True,
+        save_state: bool = False
     ):
         self.subject_dir = os.path.abspath(subject_dir)
         subject_name = os.path.basename(self.subject_dir.rstrip(os.sep))
-        
+
         self.knowledge_base_path = knowledge_base_path or os.path.join(self.subject_dir, "knowledge_base.json")
         self.output_dir = output_dir or os.path.join(self.subject_dir, "output")
         self.index_dir = index_dir or os.path.join(self.subject_dir, "indexes")
-        self.state = WorkflowState(os.path.join(self.subject_dir, "workflow_state.json"))
+        self.state = WorkflowState(
+            os.path.join(self.subject_dir, "workflow_state.json"),
+            persist=save_state,
+        )
         self.resume = resume
-        
+
         os.makedirs(self.output_dir, exist_ok=True)
         os.makedirs(self.index_dir, exist_ok=True)
     
@@ -440,25 +449,32 @@ class KnowledgeWorkflow:
 def main():
     """主函数"""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="学科知识增量积累工作流")
     parser.add_argument("subject_dir", help="学科目录路径（输出文件将保存在此目录下）")
     parser.add_argument("--no-resume", action="store_true", help="不恢复之前的状态")
     parser.add_argument("--clear", action="store_true", help="清除状态并重新开始")
-    
+    parser.add_argument(
+        "--save-state",
+        action="store_true",
+        help="启用 workflow_state.json 状态持久化（默认关闭，不写入状态文件）",
+    )
+
     args = parser.parse_args()
-    
+
     workflow = KnowledgeWorkflow(
         subject_dir=args.subject_dir,
-        resume=not args.no_resume
+        resume=not args.no_resume,
+        save_state=args.save_state,
     )
-    
+
     if args.clear:
         workflow.state.clear()
         print("已清除工作流状态")
-    
+
     result = workflow.run()
-    print(f"\n完整结果已保存到 {workflow.subject_dir}/workflow_state.json")
+    if args.save_state:
+        print(f"\n状态已保存到 {workflow.state.state_file}")
 
 
 if __name__ == "__main__":

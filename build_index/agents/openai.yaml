@@ -1,4 +1,0 @@
-interface:
-  display_name: "Build Index"
-  short_description: "为知识库构建可搜索的索引（向量索引、关键词索引）。"
-  default_prompt: "为知识库构建搜索索引。"

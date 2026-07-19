@@ -18,101 +18,42 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 from pathlib import Path
 
-# 添加design skill的路径
-design_dir = Path(__file__).parent.parent.parent / "design"
-sys.path.insert(0, str(design_dir / "scripts"))
-
-# 尝试导入design skill的搜索功能
-try:
-    from core import search
-except Exception:
-    # 如果导入失败，使用默认设计
-    search = None
-
 
 SUPPORTED_FORMATS = {"pdf", "mindmap", "md", "html"}
 
+# 默认设计配置（教育/学习场景）
+_DEFAULT_DESIGN_CONFIG = {
+    "colors": {
+        "primary": "#2563eb",
+        "primary-light": "#3b82f6",
+        "bg": "#f8fafc",
+        "card": "#ffffff",
+        "text": "#1e293b",
+        "text-light": "#64748b",
+        "border": "#e2e8f0",
+        "success": "#10b981",
+        "warning": "#f59e0b",
+        "danger": "#ef4444",
+    },
+    "fonts": {
+        "heading": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+        "body": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+    },
+    "style": "modern",
+}
 
-def get_design_config(subject_name: str) -> Dict:
-    """
-    从design skill获取设计配置
-    
+
+def get_design_config(subject_name: str = "") -> Dict:
+    """返回默认设计配置
+
     Args:
-        subject_name: 学科名称，用于搜索合适的设计风格
-    
+        subject_name: 学科名称（保留参数以维持向后兼容，目前未使用）
+
     Returns:
         设计配置字典
     """
-    default_config = {
-        "colors": {
-            "primary": "#2563eb",
-            "primary-light": "#3b82f6",
-            "bg": "#f8fafc",
-            "card": "#ffffff",
-            "text": "#1e293b",
-            "text-light": "#64748b",
-            "border": "#e2e8f0",
-            "success": "#10b981",
-            "warning": "#f59e0b",
-            "danger": "#ef4444"
-        },
-        "fonts": {
-            "heading": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
-            "body": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-        },
-        "style": "modern"
-    }
-    
-    if search is None:
-        return default_config
-    
-    try:
-        # 搜索适合教育/学习的设计风格
-        query = f"教育 {subject_name} 学习 现代 简洁"
-        style_results = search(query, domain="style", max_results=1)
-        
-        # 搜索适合的配色方案
-        color_results = search(f"教育 学习 专业", domain="color", max_results=1)
-        
-        # 搜索适合的字体
-        typography_results = search("教育 学习 清晰 易读", domain="typography", max_results=1)
-        
-        # 构建配置
-        config = default_config.copy()
-        
-        # 处理风格结果
-        if style_results.get("results"):
-            style = style_results["results"][0]
-            if style.get("Primary Colors"):
-                colors = style["Primary Colors"].split(",")
-                if colors:
-                    config["colors"]["primary"] = colors[0].strip()
-        
-        # 处理配色结果
-        if color_results.get("results"):
-            color = color_results["results"][0]
-            for key, color_key in {
-                "primary": "Primary",
-                "bg": "Background",
-                "text": "Foreground",
-                "card": "Card",
-                "text-light": "Muted Foreground"
-            }.items():
-                if color.get(color_key):
-                    config["colors"][key] = color[color_key]
-        
-        # 处理字体结果
-        if typography_results.get("results"):
-            typography = typography_results["results"][0]
-            if typography.get("Heading Font"):
-                config["fonts"]["heading"] = typography["Heading Font"]
-            if typography.get("Body Font"):
-                config["fonts"]["body"] = typography["Body Font"]
-        
-        return config
-    except Exception as e:
-        print(f"Design config error: {e}")
-        return default_config
+    import copy
+    return copy.deepcopy(_DEFAULT_DESIGN_CONFIG)
 
 
 def load_knowledge_base(path: str) -> Optional[Dict]:
@@ -403,7 +344,7 @@ def export_markdown(kb: Dict, output_path: str) -> bool:
 
         return True
     except Exception as e:
-        print(f"Export error: {e}")
+        print(f"Export error: {e}", file=sys.stderr)
         return False
 
 
@@ -781,13 +722,13 @@ def export_html(kb: Dict, output_path: str, design_config: Dict = None) -> bool:
 </body>
 </html>
 '''
-        
+
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(html)
-        
+
         return True
     except Exception as e:
-        print(f"HTML export error: {e}")
+        print(f"HTML export error: {e}", file=sys.stderr)
         return False
 
 
@@ -899,7 +840,7 @@ def export_markdown_chapter(chapter: str, kps: List[Dict], output_path: str, kb_
 
         return True
     except Exception as e:
-        print(f"Export error: {e}")
+        print(f"Export error: {e}", file=sys.stderr)
         return False
 
 
@@ -1194,10 +1135,10 @@ def export_html_chapter(chapter: str, kps: List[Dict], output_path: str, kb_meta
         
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(html)
-        
+
         return True
     except Exception as e:
-        print(f"HTML export error: {e}")
+        print(f"HTML export error: {e}", file=sys.stderr)
         return False
 
 

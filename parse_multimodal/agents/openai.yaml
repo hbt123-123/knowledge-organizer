@@ -1,4 +1,0 @@
-interface:
-  display_name: "Parse Multimodal"
-  short_description: "解析 PDF/PPT/图片文件，提取文本、图像描述、表格内容。"
-  default_prompt: "解析这个文件，提取文本和内容。"

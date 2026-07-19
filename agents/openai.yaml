@@ -1,4 +1,0 @@
-interface:
-  display_name: "Knowledge Organizer"
-  short_description: "学科知识增量积累系统。构建知识库，处理教学材料，提取知识点，多格式导出。"
-  default_prompt: "使用知识管理系统处理这个学科目录，提取知识点并构建知识库。"
